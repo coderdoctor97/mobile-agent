@@ -18,7 +18,25 @@ Mobile Agent is an open-source AI agent built specifically for mobile devices th
 - Direct access to phone's internal storage
 - Android permission-based access
 
-## Installation
+## PC Edition (Windows wrapper)
+
+The same agent, wrapped as a local web tool for your computer — it serves a
+polished web UI on a local port and has direct access to the local system
+(shell, files, memory), acting as a local AI agent for your PC.
+
+1. **`setup.bat`** — one-time setup (installs dependencies; needs
+   [Node.js 20+](https://nodejs.org)).
+2. **`start.bat`** — starts the agent at `http://localhost:8787` and opens
+   your browser.
+
+Bring your own model: an API key (Anthropic, OpenAI, Google, xAI,
+OpenRouter) or a local runtime (Ollama, LM Studio). The project's
+`skills/` directory ships with the [hallmark](https://github.com/Nutlope/hallmark)
+and [impeccable](https://github.com/pbakaus/impeccable) design skills cloned
+from GitHub, which shaped the PC UI and are available to the agent.
+See **[pc/README.md](pc/README.md)** for the full guide.
+
+## Installation (Android)
 
 The application is distributed through GitHub Releases.
 

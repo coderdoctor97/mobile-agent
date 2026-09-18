@@ -48,3 +48,7 @@ example
 # Local Expo module Android build output
 /modules/*/android/build/
 /modules/*/android/.gradle/
+
+# PC Edition runtime data (chats, keys, memory — machine-local)
+/pc/data/
+

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="description" content="Mobile Agent — PC Edition. A local AI agent with direct access to your computer." />
+  <title>Mobile Agent · PC</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="/fonts/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/GeistMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/vendor/marked.umd.js" defer></script>
+  <script type="module" src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m13 2-2 9h7l-9 11 2-9H4l9-11Z" fill="currentColor" stroke="none" />
+          </svg>
+        </div>
+        <div class="hide-narrow">
+          <div class="brand-name">Mobile Agent</div>
+          <div class="brand-sub">PC Edition</div>
+        </div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn btn-primary btn-new-chat" id="btn-new-chat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          <span class="btn-label">New chat</span>
+        </button>
+        <div class="search-wrap hide-narrow">
+          <span class="field-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <input id="search" class="input-search" type="search" placeholder="Search chats" aria-label="Search chats" autocomplete="off" />
+        </div>
+      </div>
+
+      <nav class="conversation-list" id="conversation-list" aria-label="Conversations"></nav>
+
+      <nav class="side-nav" aria-label="Tools">
+        <a class="side-nav-item" href="#/terminal" data-nav="terminal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>
+          <span>Terminal</span>
+        </a>
+        <a class="side-nav-item" href="#/settings/skills" data-nav="skills">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-5a4 4 0 0 0-4 4 4 4 0 0 0-4-4z"/><path d="M12 7a4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13"/></svg>
+          <span>Skills</span>
+        </a>
+        <a class="side-nav-item" href="#/settings" data-nav="settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="side-foot hide-narrow">
+        <div class="foot-row"><span class="status-dot" id="status-dot"></span><span id="status-text">local · idle</span></div>
+        <div class="foot-row" id="foot-model" title="Default model">no model selected</div>
+        <div class="foot-row" id="foot-workspace" title="Workspace root"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title" id="topbar-title"><span class="title-placeholder">New chat</span></div>
+        <div class="segmented" id="agent-switch" role="tablist" aria-label="Agent mode">
+          <button data-agent="build" role="tab">Build</button>
+          <button data-agent="plan" role="tab">Plan</button>
+        </div>
+        <div class="topbar-actions" id="topbar-actions"></div>
+      </header>
+      <div class="run-banner" id="run-banner" aria-hidden="true"></div>
+      <section class="view" id="view" aria-live="polite"></section>
+
+      <div class="composer-wrap" id="composer-wrap">
+        <div class="composer">
+          <div class="attachments" id="attachments"></div>
+          <div class="composer-box" id="composer-box">
+            <textarea id="composer-input" rows="1" placeholder="Ask your agent to do something on this computer…"
+              aria-label="Message the agent" autocomplete="off"></textarea>
+            <button class="composer-send" id="composer-send" aria-label="Send message" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="send-icon">
+                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/>
+                <path d="m21.854 2.147-10.94 10.939"/>
+              </svg>
+            </button>
+          </div>
+          <div class="composer-bar">
+            <button class="btn btn-quiet btn-sm" id="btn-attach" title="Reference a file from the workspace">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              Attach file
+            </button>
+            <div class="model-picker" id="model-picker">
+              <button class="model-chip" id="model-chip" aria-haspopup="listbox" title="Choose model">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+                <span class="chip-value" id="model-chip-value">Select model</span>
+              </button>
+              <div class="model-menu" id="model-menu" role="listbox"></div>
+            </div>
+            <div class="composer-hint">
+              <span><kbd>Enter</kbd> send</span>
+              <span><kbd>Shift</kbd>+<kbd>Enter</kbd> newline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "mobile-agent-pc",
+  "description": "Mobile Agent for the desktop — a local AI agent web tool with access to your system.",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test/e2e.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.7",
+    "@ai-sdk/google": "^4.0.6",
+    "@ai-sdk/openai": "^4.0.5",
+    "@ai-sdk/openai-compatible": "^3.0.12",
+    "@ai-sdk/xai": "^4.0.16",
+    "ai": "^7.0.9",
+    "ollama-ai-provider-v2": "^4.0.1",
+    "zod": "^4.4.3"
+  }
+}
