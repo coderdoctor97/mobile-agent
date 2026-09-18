@@ -1,20 +1,18 @@
 /**
- * Mock OpenAI-compatible provider for E2E testing the PC wrapper.
- * Behavior by turn:
- *   1st call → tool_call: run_command {command: "echo hello-from-mock"}
- *   2nd call → tool_call: write_file {path: "pc-test-notes/hello.txt", content: ...}
- *   3rd call → tool_call: ask_question {question: "What should the file say?"}
- *   4th call → tool_call: read_file {path: "pc-test-notes/hello.txt"}
+ * Mock OpenAI-compatible provider for E2E testing and demos.
+ * Stateless per conversation: a request without tool history starts the
+ * scripted sequence from the top.
+ *
+ *   1st call → run_command  {command: "echo hello-from-mock"}
+ *   2nd call → write_file   {path: "pc-test-notes/hello.txt", …}
+ *   3rd call → ask_question {question: "Name the project?"}
+ *   4th call → read_file    {path: "pc-test-notes/hello.txt"}
  *   5th call → final text answer.
  */
 import http from "node:http";
 
-const PORT = 9911;
-let callCount = 0;
-
-function sseChunk(obj) {
-  return `data: ${JSON.stringify(obj)}\n\n`;
-}
+const PORT = Number(process.env.PORT ?? 9911);
+let turn = 0;
 
 const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/v1/models") {
@@ -27,8 +25,11 @@ const server = http.createServer((req, res) => {
     let body = "";
     req.on("data", (c) => (body += c));
     req.on("end", () => {
-      callCount += 1;
-      const n = callCount;
+      // A fresh conversation (no tool results replayed) restarts the script.
+      const hasToolHistory = body.includes('"tool"') || body.includes('"role":"tool"');
+      if (!hasToolHistory) turn = 0;
+      turn += 1;
+      const n = turn;
       const id = `chatcmpl-mock${n}`;
       const created = Math.floor(Date.now() / 1000);
 
@@ -37,9 +38,7 @@ const server = http.createServer((req, res) => {
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       });
-
-      const send = (obj) => res.write(sseChunk(obj));
-
+      const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`);
       const header = (delta) => ({
         id, object: "chat.completion.chunk", created, model: "mock-agent-model",
         choices: [{ index: 0, delta, finish_reason: null }],
@@ -49,9 +48,8 @@ const server = http.createServer((req, res) => {
         choices: [{ index: 0, delta: {}, finish_reason: reason }],
       });
 
-      // 200ms of "thinking" text first so we exercise text-delta
       send(header({ role: "assistant", content: "" }));
-      const words = ["Working", " on", " it", "…", "\n\n"];
+      const words = ["Working", " on", " it", "…"];
       let wi = 0;
       const wordTimer = setInterval(() => {
         if (wi < words.length) {
